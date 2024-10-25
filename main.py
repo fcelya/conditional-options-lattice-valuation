@@ -19,8 +19,14 @@ def binomial(S,X,multiplier,frac_multiplier,t,vest,r,sigma,n):
 
     option_price = np.zeros((n+1,n+1))
     option_price[-1,:] = np.clip(asset_price[-1,:]-X,0,None)
-
+    
     evaluation_day = int(vest/dt)
+    
+    if t==vest:
+        frac = asset_price[-1,:]/S/multiplier
+        frac[frac<frac_multiplier] = 0
+        frac[frac>1] = 1
+        option_price[-1,:] *= frac
 
     for i in range(n-1,-1,-1):
         for j in range(i+1):
@@ -41,60 +47,29 @@ def binomial(S,X,multiplier,frac_multiplier,t,vest,r,sigma,n):
 
 
 if __name__ == '__main__':
+    sigma_refs = { # 180 day mean implied volatility https://www.alphaquery.com/stock/NDAQ/volatility-option-statistics/180-day/iv-mean
+        'Visa': (.2110,559.62*10e9),
+        'Mastercard': (.2106,471.73*10e9),
+        'Block': (.4922,44.67*10e9),
+        'Equifax': (.2854,33.67*10e9),
+        'Paypal':(.3794,83.21*10e9),
+        'Nasdaq':(.2221,43.33*10e9),
+    }
+    vol = sum(sigma_refs[k][0]*sigma_refs[k][1] for k in sigma_refs.keys())/sum(sigma_refs[k][1] for k in sigma_refs.keys())
+    # vol = sum(sigma_refs[k][0] for k in sigma_refs.keys())/len(sigma_refs.keys())
     args = {
         'S':166,
         'X':1,
-        'multiplier':5.92,
+        'multiplier':5.92,#3.946666,
         'frac_multiplier':1,
-        't':7,
+        't':2,
         'vest':2,
         'r':.02277,
-        'sigma':.212,
-        'n':7665,
+        'sigma':vol,#.212,
+        'n':10*365*2,
     }
-    print(binomial(**args))
-    # print(binomial(156,1,9.238507156,.5,7.5,2.5,.02881,.211995,9450))
-    # S = 156
-    # X = 1
-    # multiplier=9.238507156
-    # frac_multiplier=.5
-    # t=7.5
-    # vest=2.5
-    # r=.02881
-    # sigma_refs = { # 180 day mean implied volatility
-    #     'Visa': (.1775,508.27*10e9),
-    #     'Mastercard': (.1848,431.85*10e9),
-    #     'Block': (.5126,41.14*10e9),
-    #     'Equifax': (.2999,29.98*10e9),
-    #     'Paypal':(.4225,70.08*10e9),
-    #     'Nasdaq':(.1973,32.49*10e9),
-    # }
-    # # # sigma_refs = { # 30 day historical volatility
-    # # #     'Visa': (.1377,508.27*10e9),
-    # # #     'Mastercard': (.1234,431.85*10e9),
-    # # #     # 'Block': (.5126,41.14*10e9),
-    # # #     # 'Equifax': (.2999,29.98*10e9),
-    # # #     # 'Paypal':(.4225,70.08*10e9),
-    # # #     'Nasdaq':(.1495,32.49*10e9),
-    # # # }
-    # vol = sum(sigma_refs[k][0]*sigma_refs[k][1] for k in sigma_refs.keys())/sum(sigma_refs[k][1] for k in sigma_refs.keys())
-    # sigma = vol
-    # print(sigma)
-    # sigma=.2
-    # n=1000
-    # a = binomial(S,X,multiplier,frac_multiplier,t,vest,r,sigma,n)
-    # print(a)
-    # S=(324.715,156,493.43)
-    # X=(1,)
-    # multiplier=(4.438376,9.238507156, 2.920793675)
-    # frac_multiplier=(.5,)
-    # t=(7.5,)
-    # vest=(2.5,)
-    # r=(.02881,) # 10Y Spanish bond
-    # # vol = (.4081+.5079+.1855+.1883+.2930+.2156)/6 # 180 day mean implied volatility of Paypal, Square, Visa, Mastercard, Equifax y Nasdaq
-    # sigma=(vol,)
-    # n=(int(7.5*252*3),)
-
+    print(vol,binomial(**args))
+    
     # combinations = list(itertools.product(S,X,multiplier,frac_multiplier,t,vest,r,sigma,n))
     # print(vol)
     # for c in combinations:
