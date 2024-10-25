@@ -46,12 +46,11 @@ if __name__ == '__main__':
         'X':1,
         'multiplier':5.92,
         'frac_multiplier':1,
-        't':7.5,
-        'vest':2.5,
-        'r':0.04,
-        # 'r':.02448,
+        't':7,
+        'vest':2,
+        'r':.02277,
         'sigma':.212,
-        'n':5670,
+        'n':7665,
     }
     print(binomial(**args))
     # print(binomial(156,1,9.238507156,.5,7.5,2.5,.02881,.211995,9450))
